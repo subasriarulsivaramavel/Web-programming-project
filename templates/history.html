@@ -1,0 +1,564 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScamShield | Scan History</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        :root {
+            --bg: #07111f;
+            --panel: #101d30;
+            --border: #243650;
+            --text: #eef4ff;
+            --muted: #92a4bf;
+            --green: #52e0bd;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 20px 5%;
+            background: #0b1728;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .logo span {
+            color: var(--green);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 22px;
+        }
+
+        nav a {
+            color: var(--muted);
+            font-size: 14px;
+            transition: .2s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--green);
+        }
+
+        .logout {
+            padding: 9px 15px;
+            border: 1px solid #344762;
+            border-radius: 9px;
+        }
+
+        main {
+            max-width: 1250px;
+            margin: auto;
+            padding: 38px 24px;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .eyebrow {
+            color: var(--green);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: clamp(25px, 4vw, 34px);
+            margin-bottom: 10px;
+        }
+
+        .muted {
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .primary-btn {
+            display: inline-block;
+            background: var(--green);
+            color: #062019;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-weight: 750;
+            font-size: 14px;
+        }
+
+        .primary-btn:hover {
+            opacity: .88;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 23px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 13px;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: 750;
+        }
+
+        .stat-note {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .panel-heading {
+            padding: 23px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-heading h2 {
+            font-size: 19px;
+            margin-bottom: 7px;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 18px 23px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filters input,
+        .filters select {
+            background: #0a1627;
+            color: var(--text);
+            border: 1px solid #30445f;
+            border-radius: 9px;
+            padding: 12px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .filters input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filters select {
+            min-width: 150px;
+        }
+
+        .filters input:focus,
+        .filters select:focus {
+            border-color: var(--green);
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 17px 20px;
+            text-align: left;
+            border-bottom: 1px solid #223149;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        th {
+            color: #9eb0ca;
+            background: #0c1829;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tbody tr:hover {
+            background: #17263b;
+        }
+
+        .input-cell {
+            max-width: 330px;
+            overflow-wrap: anywhere;
+            line-height: 1.6;
+            color: #d9e5f7;
+        }
+
+        .type-badge,
+        .risk-badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .type-badge {
+            color: #b9d6ff;
+            background: #1b3556;
+        }
+
+        .risk-high {
+            color: #ff9b9b;
+            background: #421f2a;
+        }
+
+        .risk-medium {
+            color: #ffd58a;
+            background: #44351d;
+        }
+
+        .risk-low {
+            color: #7cebc4;
+            background: #173b35;
+        }
+
+        .score {
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .score-high { color: #ff8d96; }
+        .score-medium { color: #ffd27a; }
+        .score-low { color: var(--green); }
+
+        .date-cell {
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .empty {
+            padding: 55px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 38px;
+            margin-bottom: 15px;
+        }
+
+        .empty h3 {
+            margin-bottom: 10px;
+        }
+
+        .empty .primary-btn {
+            margin-top: 20px;
+        }
+
+        .no-results {
+            display: none;
+            padding: 30px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .footer-note {
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
+            margin-top: 22px;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 700px) {
+            .topbar {
+                padding: 18px;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            nav {
+                gap: 15px;
+            }
+
+            main {
+                padding: 28px 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 18px;
+            }
+
+            .filters {
+                padding: 15px;
+            }
+
+            .filters input,
+            .filters select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header class="topbar">
+    <a href="{{ url_for('dashboard') }}" class="logo">
+        🛡️ Scam<span>Shield</span>
+    </a>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('scan') }}">Scanner</a>
+        <a href="{{ url_for('history') }}" class="active">History</a>
+        <a href="{{ url_for('safety') }}">Safety Tips</a>
+        <a href="{{ url_for('logout') }}" class="logout">Logout ↗</a>
+    </nav>
+</header>
+
+<main>
+    <section class="page-heading">
+        <div>
+            <div class="eyebrow">SECURITY ACTIVITY</div>
+            <h1>Scan History</h1>
+            <p class="muted">
+                Review your previous URL and message scans in one place.
+            </p>
+        </div>
+
+        <a href="{{ url_for('scan') }}" class="primary-btn">
+            + New Scan
+        </a>
+    </section>
+
+    {% if records %}
+    {% set total_scans = records|length %}
+    {% set high_count = records|selectattr('risk_level', 'equalto', 'High')|list|length %}
+    {% set medium_count = records|selectattr('risk_level', 'equalto', 'Medium')|list|length %}
+
+    <section class="stats">
+        <div class="stat-card">
+            <div class="stat-label">TOTAL SCANS</div>
+            <div class="stat-number">{{ total_scans }}</div>
+            <div class="stat-note">All saved scan records</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">HIGH-RISK SCANS</div>
+            <div class="stat-number" style="color:#ff8d96">
+                {{ high_count }}
+            </div>
+            <div class="stat-note">Scans classified as high risk</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">MEDIUM-RISK SCANS</div>
+            <div class="stat-number" style="color:#ffd27a">
+                {{ medium_count }}
+            </div>
+            <div class="stat-note">Scans needing extra caution</div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <h2>Previous Scans</h2>
+            <p class="muted">Search or filter your saved scan records.</p>
+        </div>
+
+        <div class="filters">
+            <input
+                type="search"
+                id="searchInput"
+                placeholder="Search URLs or messages..."
+                aria-label="Search scan history"
+            >
+
+            <select id="typeFilter" aria-label="Filter by scan type">
+                <option value="">All scan types</option>
+                <option value="url">URL</option>
+                <option value="message">Message</option>
+            </select>
+
+            <select id="riskFilter" aria-label="Filter by risk level">
+                <option value="">All risk levels</option>
+                <option value="high">High risk</option>
+                <option value="medium">Medium risk</option>
+                <option value="low">Low risk</option>
+            </select>
+        </div>
+
+        <div class="table-wrap">
+            <table id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Scanned Input</th>
+                        <th>Score</th>
+                        <th>Risk Level</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for record in records %}
+                    {% set level = record.risk_level|lower %}
+                    <tr
+                        data-type="{{ record.scan_type|lower }}"
+                        data-risk="{{ level }}"
+                    >
+                        <td>
+                            <span class="type-badge">
+                                {{ record.scan_type }}
+                            </span>
+                        </td>
+
+                        <td class="input-cell">
+                            {{ record.input_text }}
+                        </td>
+
+                        <td class="score score-{{ level }}">
+                            {{ record.risk_score }}/100
+                        </td>
+
+                        <td>
+                            <span class="risk-badge risk-{{ level }}">
+                                {{ record.risk_level }} Risk
+                            </span>
+                        </td>
+
+                        <td class="date-cell">
+                            {{ record.scanned_at }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="no-results" id="noResults">
+            No scans match your search or filters.
+        </div>
+    </section>
+
+    {% else %}
+    <section class="panel empty">
+        <div class="empty-icon">📋</div>
+        <h3>No scans yet</h3>
+        <p class="muted">
+            Your scan history will appear here after you scan a URL or message.
+        </p>
+        <a href="{{ url_for('scan') }}" class="primary-btn">
+            Start Scanning →
+        </a>
+    </section>
+    {% endif %}
+
+    <p class="footer-note">
+        ScamShield provides basic warning-sign analysis.
+        A low-risk result does not guarantee that a URL or message is safe.
+    </p>
+</main>
+
+<script>
+    const searchInput = document.getElementById("searchInput");
+    const typeFilter = document.getElementById("typeFilter");
+    const riskFilter = document.getElementById("riskFilter");
+    const table = document.getElementById("historyTable");
+    const noResults = document.getElementById("noResults");
+
+    function filterHistory() {
+        if (!table) return;
+
+        const search = searchInput.value.toLowerCase().trim();
+        const selectedType = typeFilter.value;
+        const selectedRisk = riskFilter.value;
+
+        const rows = table.querySelectorAll("tbody tr");
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const type = row.dataset.type;
+            const risk = row.dataset.risk;
+
+            const matchesSearch = text.includes(search);
+            const matchesType = !selectedType || type === selectedType;
+            const matchesRisk = !selectedRisk || risk === selectedRisk;
+
+            const visible =
+                matchesSearch && matchesType && matchesRisk;
+
+            row.style.display = visible ? "" : "none";
+
+            if (visible) visibleCount++;
+        });
+
+        noResults.style.display = visibleCount === 0 ? "block" : "none";
+        table.style.display = visibleCount === 0 ? "none" : "table";
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", filterHistory);
+        typeFilter.addEventListener("change", filterHistory);
+        riskFilter.addEventListener("change", filterHistory);
+    }
+</script>
+</body>
+</html>

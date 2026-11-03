@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScamShield | Safety Center</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        :root {
+            --bg: #07111f;
+            --panel: #101d30;
+            --border: #263952;
+            --text: #eef4ff;
+            --muted: #9aabc3;
+            --green: #52e0bd;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .topbar {
+            background: #0b1728;
+            border-bottom: 1px solid var(--border);
+            padding: 19px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: var(--green);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 22px;
+        }
+
+        nav a {
+            color: var(--muted);
+            font-size: 14px;
+            transition: color .2s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--green);
+        }
+
+        .logout {
+            padding: 9px 14px;
+            border: 1px solid #3a4b63;
+            border-radius: 9px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: auto;
+            padding: 36px 24px;
+        }
+
+        .hero {
+            padding: 42px;
+            border-radius: 20px;
+            border: 1px solid #2a465c;
+            background:
+                radial-gradient(ellipse at top right, #15504d 0%, transparent 48%),
+                linear-gradient(135deg, #122640, #101d30);
+            margin-bottom: 35px;
+        }
+
+        .eyebrow {
+            color: var(--green);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-size: clamp(28px, 4vw, 40px);
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            max-width: 720px;
+            color: #bdcce0;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 750;
+            transition: .2s;
+        }
+
+        .btn-primary {
+            background: var(--green);
+            color: #062019;
+        }
+
+        .btn-primary:hover {
+            background: #8af3d9;
+        }
+
+        .btn-secondary {
+            border: 1px solid #465b76;
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #1a2c42;
+        }
+
+        .section-heading {
+            margin-bottom: 22px;
+        }
+
+        .section-heading h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 36px;
+        }
+
+        .tip-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 24px;
+            transition: transform .2s, border-color .2s;
+        }
+
+        .tip-card:hover {
+            transform: translateY(-4px);
+            border-color: #43867c;
+        }
+
+        .tip-icon {
+            width: 49px;
+            height: 49px;
+            display: grid;
+            place-items: center;
+            background: #19374a;
+            border-radius: 12px;
+            font-size: 24px;
+            margin-bottom: 18px;
+        }
+
+        .tip-card h3 {
+            font-size: 17px;
+            margin-bottom: 11px;
+        }
+
+        .tip-card p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .tip-card ul {
+            margin: 13px 0 0 18px;
+            color: #cbd7e8;
+            font-size: 13px;
+            line-height: 1.9;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 27px;
+            margin-bottom: 28px;
+        }
+
+        .panel h2 {
+            font-size: 22px;
+            margin-bottom: 9px;
+        }
+
+        .panel-description {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .flags-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 13px;
+            margin-top: 21px;
+        }
+
+        .flag {
+            display: flex;
+            gap: 12px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #0b192a;
+            border: 1px solid #263750;
+            color: #d6e1f0;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .flag-icon {
+            color: #ff9c9c;
+            font-size: 17px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px 0;
+            border-bottom: 1px solid #263750;
+            color: #d6e1f0;
+            font-size: 14px;
+            line-height: 1.6;
+            cursor: pointer;
+        }
+
+        .checklist-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .checklist-item input {
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+            margin-top: 3px;
+            accent-color: var(--green);
+            cursor: pointer;
+        }
+
+        .progress-track {
+            height: 8px;
+            border-radius: 10px;
+            background: #263750;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--green);
+            border-radius: 10px;
+            transition: width .25s;
+        }
+
+        .progress-text {
+            color: var(--green);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        .emergency {
+            background: linear-gradient(135deg, #351e2a, #211b2d);
+            border: 1px solid #653546;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+        }
+
+        .emergency h2 {
+            font-size: 23px;
+            margin-bottom: 12px;
+        }
+
+        .emergency p,
+        .emergency li {
+            color: #e0ceda;
+            font-size: 14px;
+            line-height: 1.9;
+        }
+
+        .emergency ol {
+            padding-left: 22px;
+            margin: 15px 0;
+        }
+
+        .report-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #ffb4c1;
+            text-decoration: underline;
+            font-weight: 750;
+            font-size: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 850px) {
+            .tips-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 600px) {
+            main {
+                padding: 25px 14px;
+            }
+
+            .topbar {
+                padding: 18px;
+            }
+
+            nav {
+                gap: 14px;
+            }
+
+            .hero {
+                padding: 26px 21px;
+            }
+
+            .tips-grid,
+            .flags-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tip-card,
+            .panel,
+            .emergency {
+                padding: 21px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <a href="{{ url_for('dashboard') }}" class="logo">
+        🛡️ Scam<span>Shield</span>
+    </a>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('scan') }}">Scanner</a>
+        <a href="{{ url_for('history') }}">History</a>
+        <a href="{{ url_for('safety') }}" class="active">Safety Tips</a>
+        <a href="{{ url_for('logout') }}" class="logout">Logout ↗</a>
+    </nav>
+</header>
+
+<main>
+
+    <section class="hero">
+        <div class="eyebrow">SCAMSHIELD SECURITY CENTER</div>
+        <h1>Think Before You Click. 🛡️</h1>
+        <p>
+            Online scams can appear as fake websites, urgent messages,
+            suspicious emails and unexpected payment requests. Learn to
+            identify warning signs and protect your personal information.
+        </p>
+
+        <div class="hero-actions">
+            <a href="{{ url_for('scan') }}" class="btn btn-primary">
+                Scan a URL or Message →
+            </a>
+
+            <a href="#checklist" class="btn btn-secondary">
+                Security Checklist
+            </a>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-heading">
+            <h2>Essential Safety Tips</h2>
+            <p>Simple habits can help you stay safer online.</p>
+        </div>
+
+        <div class="tips-grid">
+
+            <article class="tip-card">
+                <div class="tip-icon">🔗</div>
+                <h3>Check Links Carefully</h3>
+                <p>Fake websites can look almost identical to genuine ones.</p>
+                <ul>
+                    <li>Check the exact domain name.</li>
+                    <li>Watch for misspellings.</li>
+                    <li>Use known official website addresses.</li>
+                </ul>
+            </article>
+
+            <article class="tip-card">
+                <div class="tip-icon">🔐</div>
+                <h3>Protect Your Passwords</h3>
+                <p>Use strong account security to reduce unauthorized access.</p>
+                <ul>
+                    <li>Use unique passwords.</li>
+                    <li>Consider a trusted password manager.</li>
+                    <li>Enable multi-factor authentication.</li>
+                </ul>
+            </article>
+
+            <article class="tip-card">
+                <div class="tip-icon">📱</div>
+                <h3>Never Share OTPs</h3>
+                <p>Keep verification codes and financial credentials private.</p>
+                <ul>
+                    <li>Never share OTPs, PINs or CVVs.</li>
+                    <li>Reject unknown login requests.</li>
+                    <li>Contact your bank through official channels.</li>
+                </ul>
+            </article>
+
+            <article class="tip-card">
+                <div class="tip-icon">⏳</div>
+                <h3>Beware of Urgency</h3>
+                <p>Scammers may pressure you into acting without checking.</p>
+                <ul>
+                    <li>Question threats of account closure.</li>
+                    <li>Verify urgent payment requests.</li>
+                    <li>Pause before clicking unfamiliar links.</li>
+                </ul>
+            </article>
+
+            <article class="tip-card">
+                <div class="tip-icon">📧</div>
+                <h3>Verify the Sender</h3>
+                <p>A familiar display name does not prove who sent a message.</p>
+                <ul>
+                    <li>Check the full email address.</li>
+                    <li>Confirm unusual requests separately.</li>
+                    <li>Avoid unexpected attachments.</li>
+                </ul>
+            </article>
+
+            <article class="tip-card">
+                <div class="tip-icon">💳</div>
+                <h3>Make Safe Payments</h3>
+                <p>Take care when someone unexpectedly asks you to send money.</p>
+                <ul>
+                    <li>Verify the recipient before paying.</li>
+                    <li>Never install remote-access apps on a stranger's request.</li>
+                    <li>Question guaranteed-profit promises.</li>
+                </ul>
+            </article>
+
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>🚩 Common Scam Warning Signs</h2>
+        <p class="panel-description">
+            Stop and verify if you notice any of these warning signs.
+        </p>
+
+        <div class="flags-grid">
+            <div class="flag">
+                <span class="flag-icon">●</span>
+                A message threatens account suspension unless you act immediately.
+            </div>
+
+            <div class="flag">
+                <span class="flag-icon">●</span>
+                A website has a misspelled or unfamiliar domain.
+            </div>
+
+            <div class="flag">
+                <span class="flag-icon">●</span>
+                Someone asks for your password, OTP, PIN or CVV.
+            </div>
+
+            <div class="flag">
+                <span class="flag-icon">●</span>
+                An unexpected prize requires an advance payment.
+            </div>
+
+            <div class="flag">
+                <span class="flag-icon">●</span>
+                A caller asks you to install an app or share your screen.
+            </div>
+
+            <div class="flag">
+                <span class="flag-icon">●</span>
+                Someone discourages you from contacting your bank directly.
+            </div>
+        </div>
+    </section>
+
+    <section class="panel" id="checklist">
+        <h2>✅ Personal Security Checklist</h2>
+        <p class="panel-description">
+            Tick the practices you already follow to track your progress.
+        </p>
+
+        <label class="checklist-item">
+            <input type="checkbox" class="security-check">
+            I use unique passwords for important accounts.
+        </label>
+
+        <label class="checklist-item">
+            <input type="checkbox" class="security-check">
+            I enable multi-factor authentication wherever possible.
+        </label>
+
+        <label class="checklist-item">
+            <input type="checkbox" class="security-check">
+            I never share OTPs, PINs or passwords with others.
+        </label>
+
+        <label class="checklist-item">
+            <input type="checkbox" class="security-check">
+            I verify website addresses before entering personal information.
+        </label>
+
+        <label class="checklist-item">
+            <input type="checkbox" class="security-check">
+            I confirm payment requests before transferring money.
+        </label>
+
+        <label class="checklist-item">
+            <input type="checkbox" class="security-check">
+            I keep my devices and applications updated.
+        </label>
+
+        <div class="progress-track">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="progress-text" id="progressText" aria-live="polite">
+            0 of 6 checks completed
+        </div>
+    </section>
+
+    <section class="emergency">
+        <h2>🚨 Think You Have Been Scammed?</h2>
+        <p>Take action quickly if you shared sensitive details or lost money.</p>
+
+        <ol>
+            <li>Contact your bank or payment provider immediately if money is involved.</li>
+            <li>Change compromised passwords and secure your accounts.</li>
+            <li>Keep transaction IDs, messages, phone numbers and screenshots.</li>
+            <li>Report the incident through an official cybercrime channel.</li>
+        </ol>
+
+        <p>
+            In India, call <strong>1930</strong> to report financial cyber fraud.
+            You can also submit a complaint through the official portal.
+        </p>
+
+        <a
+            class="report-link"
+            href="https://cybercrime.gov.in/"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            National Cyber Crime Reporting Portal ↗
+        </a>
+    </section>
+
+    <p class="footer">
+        ScamShield provides basic warning-sign analysis, not a guarantee
+        that a website or message is safe.
+        <br>
+        Stay alert. Stay safe. Stay protected. 🛡️
+    </p>
+
+</main>
+
+<script>
+    const checkboxes = document.querySelectorAll(".security-check");
+    const progressText = document.getElementById("progressText");
+    const progressBar = document.getElementById("progressBar");
+
+    function updateProgress() {
+        const completed = [...checkboxes]
+            .filter(checkbox => checkbox.checked).length;
+
+        const total = checkboxes.length;
+        const percentage = total ? (completed / total) * 100 : 0;
+
+        progressText.textContent =
+            `${completed} of ${total} checks completed`;
+
+        progressBar.style.width = `${percentage}%`;
+    }
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener("change", updateProgress);
+    });
+</script>
+
+</body>
+</html>

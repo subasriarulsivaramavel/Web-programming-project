@@ -1,0 +1,670 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080e1c">
+    <title>ScamShield | Dashboard</title>
+
+    <style>
+        :root {
+            --bg: #080e1c;
+            --panel: #101a2d;
+            --panel-hover: #15233a;
+            --border: #23324b;
+            --text: #f1f5ff;
+            --muted: #94a4bd;
+            --accent: #5eead4;
+            --blue: #60a5fa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse at 75% 0%, #14294b 0%, transparent 42%),
+                var(--bg);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 245px minmax(0, 1fr);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding: 28px 18px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(8, 14, 28, .94);
+            border-right: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 32px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -.7px;
+        }
+
+        .brand-icon {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #164e63, #164e9a);
+            border: 1px solid #28617d;
+            font-size: 22px;
+        }
+
+        .brand span:last-child {
+            color: var(--accent);
+        }
+
+        .nav-label {
+            padding: 0 12px;
+            margin-bottom: 12px;
+            color: #6f829e;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.7px;
+            text-transform: uppercase;
+        }
+
+        .nav {
+            display: grid;
+            gap: 7px;
+        }
+
+        .nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            color: #a9b8ce;
+            font-size: 14px;
+            transition: background .2s, color .2s, transform .2s;
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            color: var(--accent);
+            background: #12283a;
+            border-color: #204454;
+        }
+
+        .nav a:hover {
+            transform: translateX(3px);
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .protection-card {
+            padding: 16px;
+            margin-bottom: 18px;
+            border: 1px solid #224b48;
+            border-radius: 14px;
+            background: linear-gradient(145deg, #102a30, #101a2d);
+        }
+
+        .protection-icon {
+            font-size: 23px;
+        }
+
+        .protection-card h3 {
+            margin: 8px 0 4px;
+            font-size: 14px;
+        }
+
+        .protection-card p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .logout {
+            display: block;
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: #c5d1e2;
+            text-align: center;
+            font-size: 13px;
+            transition: .2s;
+        }
+
+        .logout:hover {
+            color: #fca5a5;
+            border-color: #85434b;
+            background: #281822;
+        }
+
+        .main {
+            min-width: 0;
+            padding: 30px clamp(18px, 4vw, 52px) 24px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 27px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .eyebrow {
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .topbar h2 {
+            margin-top: 3px;
+            font-size: 21px;
+            letter-spacing: -.4px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .avatar {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #155e75, #4338ca);
+            color: white;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .profile-name {
+            max-width: 180px;
+            overflow-wrap: anywhere;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .profile-role {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .welcome {
+            padding: 36px 0 29px;
+        }
+
+        .welcome h1 {
+            margin: 8px 0 9px;
+            font-size: clamp(27px, 4vw, 39px);
+            line-height: 1.2;
+            letter-spacing: -1.3px;
+        }
+
+        .welcome h1 span {
+            color: var(--accent);
+            overflow-wrap: anywhere;
+        }
+
+        .welcome p {
+            max-width: 620px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .security-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            margin-top: 22px;
+            padding: 13px 16px;
+            border: 1px solid #24514d;
+            border-radius: 11px;
+            background: rgba(16, 48, 47, .55);
+            color: #c2f7e9;
+            font-size: 12px;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: 14px 0 17px;
+        }
+
+        .section-heading h2 {
+            font-size: 18px;
+            letter-spacing: -.3px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 17px;
+        }
+
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 222px;
+            padding: 23px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            background: linear-gradient(145deg, #121f34, #0e1728);
+            transition: transform .22s, border-color .22s, background .22s;
+        }
+
+        .card::after {
+            position: absolute;
+            top: -42px;
+            right: -42px;
+            width: 115px;
+            height: 115px;
+            border-radius: 50%;
+            background: var(--glow, rgba(94, 234, 212, .06));
+            content: "";
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #3c607d;
+            background: linear-gradient(145deg, #172841, #101b30);
+        }
+
+        .card-icon {
+            display: grid;
+            place-items: center;
+            width: 47px;
+            height: 47px;
+            margin-bottom: 17px;
+            border: 1px solid var(--icon-border, #285b61);
+            border-radius: 13px;
+            background: var(--icon-bg, #12333b);
+            font-size: 22px;
+        }
+
+        .card h3 {
+            margin-bottom: 7px;
+            font-size: 17px;
+        }
+
+        .card p {
+            margin-bottom: 20px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            max-width: 100%;
+            margin-top: auto;
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        .card-link span {
+            transition: transform .2s;
+        }
+
+        .card-link:hover span {
+            transform: translateX(4px);
+        }
+
+        .url-card {
+            --glow: rgba(94, 234, 212, .09);
+        }
+
+        .message-card {
+            --glow: rgba(96, 165, 250, .12);
+            --icon-bg: #172e50;
+            --icon-border: #294b78;
+        }
+
+        .history-card {
+            --glow: rgba(167, 139, 250, .12);
+            --icon-bg: #292347;
+            --icon-border: #494073;
+        }
+
+        .safety-card {
+            --glow: rgba(251, 191, 36, .08);
+            --icon-bg: #352b1b;
+            --icon-border: #66502b;
+        }
+
+        .footer {
+            margin-top: 36px;
+            padding-top: 19px;
+            border-top: 1px solid var(--border);
+            color: #70819a;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .flash {
+            margin: 16px 0 0;
+            padding: 12px 15px;
+            border: 1px solid #755b34;
+            border-radius: 10px;
+            background: #292316;
+            color: #fde68a;
+            font-size: 13px;
+        }
+
+        a:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 4px;
+        }
+
+        @media (max-width: 800px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                padding: 15px 18px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .brand {
+                padding: 0 0 15px;
+                font-size: 20px;
+            }
+
+            .nav-label,
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .nav {
+                display: flex;
+                gap: 7px;
+                overflow-x: auto;
+                padding: 0 0 3px;
+            }
+
+            .nav a {
+                flex-shrink: 0;
+                padding: 9px 12px;
+                font-size: 12px;
+            }
+
+            .nav a:hover {
+                transform: none;
+            }
+
+            .main {
+                padding-top: 22px;
+            }
+
+            .welcome {
+                padding-top: 29px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .main {
+                padding-right: 16px;
+                padding-left: 16px;
+            }
+
+            .topbar h2 {
+                font-size: 17px;
+            }
+
+            .profile {
+                gap: 7px;
+            }
+
+            .profile-name {
+                max-width: 95px;
+                font-size: 11px;
+            }
+
+            .avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+                gap: 13px;
+            }
+
+            .card {
+                min-height: 200px;
+                padding: 20px;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 2px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <a class="brand" href="{{ url_for('dashboard') }}">
+            <span class="brand-icon" aria-hidden="true">🛡️</span>
+            <span>Scam<span>Shield</span></span>
+        </a>
+
+        <p class="nav-label">Workspace</p>
+
+        <nav class="nav" aria-label="Main navigation">
+            <a class="active" href="{{ url_for('dashboard') }}"
+               aria-current="page">
+                <span class="nav-icon" aria-hidden="true">▦</span>
+                Dashboard
+            </a>
+            <a href="{{ url_for('scan') }}">
+                <span class="nav-icon" aria-hidden="true">⌕</span>
+                Scam Scanner
+            </a>
+            <a href="{{ url_for('history') }}">
+                <span class="nav-icon" aria-hidden="true">◷</span>
+                Scan History
+            </a>
+            <a href="{{ url_for('safety') }}">
+                <span class="nav-icon" aria-hidden="true">♧</span>
+                Safety Centre
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="protection-card">
+                <div class="protection-icon" aria-hidden="true">🔐</div>
+                <h3>Stay alert online</h3>
+                <p>Think before you click. Never share your OTP or banking PIN.</p>
+            </div>
+
+            <a class="logout" href="{{ url_for('logout') }}">
+                ↗ &nbsp; Sign out
+            </a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Security overview</p>
+                <h2>Your dashboard</h2>
+            </div>
+
+            <div class="profile">
+                <div class="avatar" aria-hidden="true">
+                    {{ name[0]|upper if name else 'U' }}
+                </div>
+                <div>
+                    <p class="profile-name">{{ name }}</p>
+                    <p class="profile-role">ScamShield user</p>
+                </div>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash" role="status">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="welcome">
+            <p class="eyebrow">Your digital safety matters</p>
+            <h1>Welcome back, <span>{{ name }}</span>!</h1>
+            <p>
+                Check suspicious links and messages before trusting them.
+                Understand potential warning signs and make safer decisions online.
+            </p>
+
+            <div class="security-note">
+                <span aria-hidden="true">✓</span>
+                <span>
+                    <strong>Stay one step ahead.</strong>
+                    ScamShield checks for suspicious patterns; results are
+                    indicators, not a guarantee that a link is safe or malicious.
+                </span>
+            </div>
+        </section>
+
+        <section aria-labelledby="tools-heading">
+            <div class="section-heading">
+                <h2 id="tools-heading">Security tools</h2>
+                <p>Choose a tool to get started</p>
+            </div>
+
+            <div class="cards">
+                <article class="card url-card">
+                    <div class="card-icon" aria-hidden="true">🔗</div>
+                    <h3>URL Scanner</h3>
+                    <p>
+                        Inspect suspicious website links for potentially
+                        risky URL patterns before opening them.
+                    </p>
+                    <a class="card-link" href="{{ url_for('scan') }}">
+                        Scan a URL <span aria-hidden="true">→</span>
+                    </a>
+                </article>
+
+                <article class="card message-card">
+                    <div class="card-icon" aria-hidden="true">💬</div>
+                    <h3>Message Scanner</h3>
+                    <p>
+                        Check SMS, emails and other messages for urgency,
+                        suspicious requests and possible scam indicators.
+                    </p>
+                    <a class="card-link" href="{{ url_for('scan') }}">
+                        Check a message <span aria-hidden="true">→</span>
+                    </a>
+                </article>
+
+                <article class="card history-card">
+                    <div class="card-icon" aria-hidden="true">📋</div>
+                    <h3>Scan History</h3>
+                    <p>
+                        Review your previous scans, risk levels and
+                        recorded warning signs.
+                    </p>
+                    <a class="card-link" href="{{ url_for('history') }}">
+                        View history <span aria-hidden="true">→</span>
+                    </a>
+                </article>
+
+                <article class="card safety-card">
+                    <div class="card-icon" aria-hidden="true">🛡️</div>
+                    <h3>Safety Centre</h3>
+                    <p>
+                        Learn how to identify phishing attempts,
+                        protect sensitive information and avoid online scams.
+                    </p>
+                    <a class="card-link" href="{{ url_for('safety') }}">
+                        Explore safety tips <span aria-hidden="true">→</span>
+                    </a>
+                </article>
+            </div>
+        </section>
+
+        <footer class="footer">
+            ScamShield · Scam awareness. Smarter protection.
+        </footer>
+    </main>
+
+</div>
+</body>
+</html>
