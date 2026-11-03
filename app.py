@@ -1,29 +1,48 @@
 
+import os
+import re
+import json
+import ipaddress
+
 from flask import (
     Flask, render_template, request, redirect,
     url_for, session, flash
 )
+
 import mysql.connector
+from mysql.connector import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from urllib.parse import urlparse
-import re
-import ipaddress
-import json
+from dotenv import load_dotenv
 
+
+# Load environment variables
+load_dotenv()
+
+
+# Flask application
 app = Flask(__name__)
-app.secret_key = "scamshield-local-secret-change-later"
+
+app.secret_key = os.getenv(
+    "SECRET_KEY",
+    "development-only-secret-key"
+)
 
 
+# Database connection
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="scam_shield"
+        host=os.getenv("DB_HOST", "localhost"),
+        user=os.getenv("DB_USER", "root"),
+        password=os.getenv("DB_PASSWORD", ""),
+        database=os.getenv("DB_NAME", "scam_shield"),
+        port=int(os.getenv("DB_PORT", 3306))
     )
 
 
+# Scam detection logic
 def analyze_input(text, scan_type):
+
     findings = []
     score = 0
     text_lower = text.lower()
@@ -35,12 +54,15 @@ def analyze_input(text, scan_type):
 
     for word in urgency_words:
         if word in text_lower:
-            findings.append(f"Urgency or pressure language: '{word}'")
+            findings.append(
+                f"Urgency or pressure language: '{word}'"
+            )
             score += 15
 
     sensitive_phrases = [
         "share otp", "send otp", "enter otp", "password",
-        "bank details", "pin number", "cvv", "click here to claim"
+        "bank details", "pin number", "cvv",
+        "click here to claim"
     ]
 
     for phrase in sensitive_phrases:
@@ -58,7 +80,9 @@ def analyze_input(text, scan_type):
     )
 
     for raw_url in urls:
+
         candidate = raw_url.rstrip(".,!?;:)")
+
         normalized = (
             candidate
             if candidate.startswith(("http://", "https://"))
@@ -68,37 +92,47 @@ def analyze_input(text, scan_type):
         parsed = urlparse(normalized)
         hostname = parsed.hostname or ""
 
+        # Check HTTP links
         if parsed.scheme == "http":
-            findings.append("Link uses HTTP instead of HTTPS")
+            findings.append(
+                "Link uses HTTP instead of HTTPS"
+            )
             score += 10
 
+        # Check @ symbol in URL
         if "@" in parsed.netloc:
             findings.append(
                 "URL contains an @ symbol, which can obscure the destination"
             )
             score += 20
 
+        # Check raw IP address
         try:
             ipaddress.ip_address(hostname)
+
             findings.append(
                 "URL uses a raw IP address instead of a domain name"
             )
             score += 20
+
         except ValueError:
             pass
 
+        # Check unusually long subdomains
         if hostname and hostname.count(".") >= 4:
             findings.append(
                 "URL has an unusually long subdomain structure"
             )
             score += 10
 
+        # Check internationalized domain names
         if hostname.startswith("xn--") or ".xn--" in hostname:
             findings.append(
                 "URL contains an internationalized domain label"
             )
             score += 10
 
+    # URL scan without a detected URL
     if scan_type == "URL" and not urls:
         findings.append(
             "No complete HTTP/HTTPS URL was detected in the input"
@@ -110,44 +144,56 @@ def analyze_input(text, scan_type):
             "No obvious warning signs were detected by these basic checks."
         )
 
+    # Limit risk score
     score = min(score, 100)
 
+    # Risk classification
     if score >= 60:
         level = "High"
+
     elif score >= 30:
         level = "Medium"
+
     else:
         level = "Low"
 
     return score, level, findings
 
 
+# Home page
 @app.route("/")
 def home():
+
     if "user_id" in session:
         return redirect(url_for("dashboard"))
 
     return render_template("login.html")
 
 
+# User registration
 @app.route("/register", methods=["POST"])
 def register():
+
     name = request.form.get("name", "").strip()
     email = request.form.get("email", "").strip().lower()
     password = request.form.get("password", "")
 
     if not name or not email or len(password) < 8:
+
         flash(
             "Enter your name, valid email and password of at least 8 characters."
         )
+
         return redirect(url_for("home"))
 
     conn = None
     cursor = None
 
     try:
+
         conn = get_db_connection()
         cursor = conn.cursor()
+
         password_hash = generate_password_hash(password)
 
         cursor.execute(
@@ -159,26 +205,34 @@ def register():
         )
 
         conn.commit()
+
         flash("Account created successfully! Please log in.")
 
-    except mysql.connector.IntegrityError:
+    except IntegrityError:
+
         flash("This email is already registered. Please log in.")
 
     except mysql.connector.Error:
+
         app.logger.exception("Registration database error")
+
         flash("Database error while creating your account.")
 
     finally:
+
         if cursor:
             cursor.close()
+
         if conn and conn.is_connected():
             conn.close()
 
     return redirect(url_for("home"))
 
 
+# User login
 @app.route("/login", methods=["POST"])
 def login():
+
     email = request.form.get("email", "").strip().lower()
     password = request.form.get("password", "")
 
@@ -186,7 +240,9 @@ def login():
     cursor = None
 
     try:
+
         conn = get_db_connection()
+
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute(
@@ -200,8 +256,12 @@ def login():
 
         user = cursor.fetchone()
 
-        if user and check_password_hash(user["password_hash"], password):
+        if user and check_password_hash(
+            user["password_hash"], password
+        ):
+
             session.clear()
+
             session["user_id"] = user["id"]
             session["user_name"] = user["name"]
 
@@ -210,20 +270,26 @@ def login():
         flash("Incorrect email or password.")
 
     except mysql.connector.Error:
+
         app.logger.exception("Login database error")
+
         flash("Database error during login.")
 
     finally:
+
         if cursor:
             cursor.close()
+
         if conn and conn.is_connected():
             conn.close()
 
     return redirect(url_for("home"))
 
 
+# Dashboard
 @app.route("/dashboard")
 def dashboard():
+
     if "user_id" not in session:
         return redirect(url_for("home"))
 
@@ -233,35 +299,54 @@ def dashboard():
     )
 
 
+# URL and message scanner
 @app.route("/scan", methods=["GET", "POST"])
 def scan():
+
     if "user_id" not in session:
         return redirect(url_for("home"))
 
     result = None
 
     if request.method == "POST":
-        scan_type = request.form.get("scan_type", "").upper()
-        input_text = request.form.get("input_text", "").strip()
+
+        scan_type = request.form.get(
+            "scan_type", ""
+        ).upper()
+
+        input_text = request.form.get(
+            "input_text", ""
+        ).strip()
 
         if scan_type not in ("URL", "MESSAGE"):
+
             flash("Choose URL or Message scanning.")
+
             return redirect(url_for("scan"))
 
         if not input_text:
+
             flash("Enter a URL or message to scan.")
+
             return redirect(url_for("scan"))
 
         if len(input_text) > 10000:
-            flash("Input is too long. Please keep it under 10,000 characters.")
+
+            flash(
+                "Input is too long. Please keep it under 10,000 characters."
+            )
+
             return redirect(url_for("scan"))
 
-        score, level, findings = analyze_input(input_text, scan_type)
+        score, level, findings = analyze_input(
+            input_text, scan_type
+        )
 
         conn = None
         cursor = None
 
         try:
+
             conn = get_db_connection()
             cursor = conn.cursor()
 
@@ -285,14 +370,20 @@ def scan():
             conn.commit()
 
         except mysql.connector.Error:
-            app.logger.exception("Saving scan history failed")
+
+            app.logger.exception(
+                "Saving scan history failed"
+            )
+
             flash(
                 "The scan was analyzed, but its result could not be saved."
             )
 
         finally:
+
             if cursor:
                 cursor.close()
+
             if conn and conn.is_connected():
                 conn.close()
 
@@ -304,20 +395,28 @@ def scan():
             "findings": findings
         }
 
-    return render_template("scanner.html", result=result)
+    return render_template(
+        "scanner.html",
+        result=result
+    )
 
 
+# Scan history
 @app.route("/history")
 def history():
+
     if "user_id" not in session:
         return redirect(url_for("home"))
 
     conn = None
     cursor = None
+
     records = []
 
     try:
+
         conn = get_db_connection()
+
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute(
@@ -334,43 +433,63 @@ def history():
         records = cursor.fetchall()
 
         for record in records:
+
             try:
+
                 record["findings_list"] = json.loads(
                     record["findings"] or "[]"
                 )
+
             except (ValueError, TypeError):
+
                 record["findings_list"] = []
 
     except mysql.connector.Error:
-        app.logger.exception("Loading scan history failed")
+
+        app.logger.exception(
+            "Loading scan history failed"
+        )
+
         flash("Could not load scan history.")
 
     finally:
+
         if cursor:
             cursor.close()
+
         if conn and conn.is_connected():
             conn.close()
 
-    return render_template("history.html", records=records)
+    return render_template(
+        "history.html",
+        records=records
+    )
 
 
+# Safety tips
 @app.route("/safety")
 def safety():
+
     if "user_id" not in session:
         return redirect(url_for("home"))
 
     return render_template("safety.html")
 
 
+# Logout
 @app.route("/logout")
 def logout():
+
     session.clear()
+
     return redirect(url_for("home"))
 
 
+# Run application
 if __name__ == "__main__":
+
     app.run(
-        host="127.0.0.1",
-        port=5000,
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 10000)),
         debug=False
-)
+    )
